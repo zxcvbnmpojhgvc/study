@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define TABLE_SIZE 10
+
+// Function to calculate hash index using linear probing
+int linearProbe(int key, int i) {
+    return (key + i) % TABLE_SIZE;
+}
+
+// Function to calculate hash index using quadratic probing
+int quadraticProbe(int key, int i) {
+    return (key + i * i) % TABLE_SIZE;
+}
+
+// Function to calculate hash index using double hashing
+int doubleHash(int key, int i) {
+    int hash1 = key % TABLE_SIZE;
+    int hash2 = 7 - (key % 7);  // A prime number less than TABLE_SIZE
+    return (hash1 + i * hash2) % TABLE_SIZE;
+}
+
+// Function to insert key into hash table using specified probing technique
+int insert(int table[], int key, int (*probe)(int, int)) {
+    int collisions = 0;
+    int index;
+
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        index = probe(key, i);
+        if (table[index] == -1) {
+            table[index] = key;
+            break;
+        } else {
+            collisions++;
+        }
+    }
+
+    return collisions;
+}
+
+// Function to display the hash table
+void display(int table[]) {
+    printf("Hash Table:\n");
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        printf("%d ", table[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int linearTable[TABLE_SIZE], quadraticTable[TABLE_SIZE], doubleTable[TABLE_SIZE];
+
+    // Initialize tables with -1 (indicating empty slots)
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        linearTable[i] = quadraticTable[i] = doubleTable[i] = -1;
+    }
+
+    int keys[] = {12, 22, 32, 42, 52, 62, 72, 82, 92, 102};
+    
+    // Insert keys using Linear Probing
+    int linearCollisions = 0;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        linearCollisions += insert(linearTable, keys[i], linearProbe);
+    }
+
+    // Insert keys using Quadratic Probing
+    int quadraticCollisions = 0;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        quadraticCollisions += insert(quadraticTable, keys[i], quadraticProbe);
+    }
+
+    // Insert keys using Double Hashing
+    int doubleCollisions = 0;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        doubleCollisions += insert(doubleTable, keys[i], doubleHash);
+    }
+
+    // Display the hash tables
+    printf("Linear Probing Collisions: %d\n", linearCollisions);
+    display(linearTable);
+
+    printf("Quadratic Probing Collisions: %d\n", quadraticCollisions);
+    display(quadraticTable);
+
+    printf("Double Hashing Collisions: %d\n", doubleCollisions);
+    display(doubleTable);
+
+    return 0;
+}

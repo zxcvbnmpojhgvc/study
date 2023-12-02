@@ -1,0 +1,151 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure for an Employee
+struct Employee {
+    char employee_name[50];
+    int emp_no;
+    float emp_salary;
+};
+
+// Function to swap two Employees
+void swap(struct Employee *a, struct Employee *b, int *swapCount) {
+    struct Employee temp = *a;
+    *a = *b;
+    *b = temp;
+    (*swapCount)++;
+}
+
+// Merge function for Merge Sort
+void merge(struct Employee arr[], int left, int mid, int right, int *swapCount) {
+    int i, j, k;
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    // Create temporary arrays
+    struct Employee L[n1], R[n2];
+
+    // Copy data to temporary arrays L[] and R[]
+    for (i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    // Merge the temporary arrays back into arr[left..right]
+    i = 0;
+    j = 0;
+    k = left;
+    while (i < n1 && j < n2) {
+        if (L[i].emp_no <= R[j].emp_no) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+            (*swapCount) += n1 - i; // Counting swaps
+        }
+        k++;
+    }
+
+    // Copy the remaining elements of L[], if there are any
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    // Copy the remaining elements of R[], if there are any
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+// Merge Sort function
+void mergeSort(struct Employee arr[], int left, int right, int *swapCount) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+
+        // Sort first and second halves
+        mergeSort(arr, left, mid, swapCount);
+        mergeSort(arr, mid + 1, right, swapCount);
+
+        // Merge the sorted halves
+        merge(arr, left, mid, right, swapCount);
+    }
+}
+
+// Partition function for Quick Sort
+int partition(struct Employee arr[], int low, int high, int *swapCount) {
+    struct Employee pivot = arr[high];
+    int i = low - 1;
+
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j].emp_no <= pivot.emp_no) {
+            i++;
+            swap(&arr[i], &arr[j], swapCount);
+        }
+    }
+    swap(&arr[i + 1], &arr[high], swapCount);
+    return i + 1;
+}
+
+// Quick Sort function
+void quickSort(struct Employee arr[], int low, int high, int *swapCount) {
+    if (low < high) {
+        int pi = partition(arr, low, high, swapCount);
+
+        quickSort(arr, low, pi - 1, swapCount);
+        quickSort(arr, pi + 1, high, swapCount);
+    }
+}
+
+// Function to print the array of Employees
+void printArray(struct Employee arr[], int size) {
+    for (int i = 0; i < size; i++)
+        printf("Emp No: %d, Name: %s, Salary: %.2f\n",
+               arr[i].emp_no, arr[i].employee_name, arr[i].emp_salary);
+    printf("\n");
+}
+
+int main() {
+    int n;
+    printf("Enter the number of employees: ");
+    scanf("%d", &n);
+
+    struct Employee *employees = (struct Employee *)malloc(n * sizeof(struct Employee));
+
+    printf("Enter employee details (Emp No, Name, Salary):\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d %s %f", &employees[i].emp_no, employees[i].employee_name, &employees[i].emp_salary);
+    }
+
+    printf("Original Array:\n");
+    printArray(employees, n);
+
+    // Perform Merge Sort
+    struct Employee *employeesMerge = malloc(n * sizeof(struct Employee));
+    memcpy(employeesMerge, employees, n * sizeof(struct Employee));
+    int mergeSwapCount = 0;
+    mergeSort(employeesMerge, 0, n - 1, &mergeSwapCount);
+    printf("Merge Sorted Array:\n");
+    printArray(employeesMerge, n);
+    printf("Merge Sort: Number of swaps = %d\n\n", mergeSwapCount);
+
+    // Perform Quick Sort
+    struct Employee *employeesQuick = malloc(n * sizeof(struct Employee));
+    memcpy(employeesQuick, employees, n * sizeof(struct Employee));
+    int quickSwapCount = 0;
+    quickSort(employeesQuick, 0, n - 1, &quickSwapCount);
+    printf("Quick Sorted Array:\n");
+    printArray(employeesQuick, n);
+    printf("Quick Sort: Number of swaps = %d\n\n", quickSwapCount);
+
+    free(employees);
+    free(employeesMerge);
+    free(employeesQuick);
+
+    return 0;
+}
