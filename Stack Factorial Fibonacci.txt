@@ -1,0 +1,89 @@
+//Stack Factorial Fibonacci
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 100
+
+// Stack implementation
+int stack[MAX_SIZE];
+int top = -1;
+
+void push(int value) {
+    if (top == MAX_SIZE - 1) {
+        printf("Stack overflow\n");
+        exit(1);
+    }
+    stack[++top] = value;
+}
+
+int pop() {
+    if (top == -1) {
+        printf("Stack underflow\n");
+        exit(1);
+    }
+    return stack[top--];
+}
+
+// Function to calculate factorial using stack
+unsigned long long factorial(int n) {
+    unsigned long long result = 1;
+
+    for (int i = 1; i <= n; ++i) {
+        push(i);
+    }
+
+    while (top != -1) {
+        result *= pop();
+    }
+
+    return result;
+}
+
+// Function to generate Fibonacci series using stack
+void fibonacci(int n) {
+    int a = 0, b = 1;
+
+    printf("Fibonacci Series up to %d terms: ", n);
+
+    for (int i = 1; i <= n; ++i) {
+        printf("%d ", a);
+        int temp = a;
+        a = b;
+        b = temp + b;
+    }
+
+    printf("\n");
+}
+
+int main() {
+    int choice, num;
+
+    do {
+        printf("\nMenu:\n");
+        printf("1. Calculate Factorial\n");
+        printf("2. Generate Fibonacci Series\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter a number to calculate factorial: ");
+                scanf("%d", &num);
+                printf("Factorial of %d is %llu\n", num, factorial(num));
+                break;
+            case 2:
+                printf("Enter the number of terms for Fibonacci series: ");
+                scanf("%d", &num);
+                fibonacci(num);
+                break;
+            case 3:
+                printf("Exiting the program\n");
+                break;
+            default:
+                printf("Invalid choice. Please enter a valid option.\n");
+        }
+    } while (choice != 3);
+
+    return 0;
+}
