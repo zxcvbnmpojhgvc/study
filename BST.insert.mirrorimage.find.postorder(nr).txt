@@ -1,0 +1,176 @@
+//Write a program to illustrate operations on a BST holding numeric keys.
+The menu must include:• Insert• Mirror image• Find• Post Order (non_recursive)
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <limits.h>
+
+// Node structure for the Binary Search Tree
+struct Node {
+    int key;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Stack structure for non-recursive post-order traversal
+struct StackNode {
+    struct Node* data;
+    struct StackNode* next;
+};
+
+// Function to create a new node
+struct Node* createNode(int key) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->key = key;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert a key into the BST
+struct Node* insert(struct Node* root, int key) {
+    if (root == NULL) {
+        return createNode(key);
+    }
+
+    if (key < root->key) {
+        root->left = insert(root->left, key);
+    } else if (key > root->key) {
+        root->right = insert(root->right, key);
+    }
+
+    return root;
+}
+
+// Function to create the mirror image of a BST
+struct Node* mirrorImage(struct Node* root) {
+    if (root == NULL) {
+        return NULL;
+    }
+
+    // Recursively swap left and right children
+    struct Node* temp = root->left;
+    root->left = mirrorImage(root->right);
+    root->right = mirrorImage(temp);
+
+    return root;
+}
+
+// Function to search for a key in the BST
+struct Node* search(struct Node* root, int key) {
+    if (root == NULL || root->key == key) {
+        return root;
+    }
+
+    if (key < root->key) {
+        return search(root->left, key);
+    }
+
+    return search(root->right, key);
+}
+
+// Function to perform non-recursive post-order traversal of the BST
+void postOrderTraversal(struct Node* root) {
+    if (root == NULL) {
+        return;
+    }
+
+    struct StackNode* stack = NULL;
+    struct Node* current = root;
+
+    do {
+        while (current != NULL) {
+            if (current->right != NULL) {
+                struct StackNode* temp = (struct StackNode*)malloc(sizeof(struct StackNode));
+                temp->data = current->right;
+                temp->next = stack;
+                stack = temp;
+            }
+            struct StackNode* temp = (struct StackNode*)malloc(sizeof(struct StackNode));
+            temp->data = current;
+            temp->next = stack;
+            stack = temp;
+            current = current->left;
+        }
+
+        current = stack->data;
+        stack = stack->next;
+
+        if (current->right != NULL && stack != NULL && current->right == stack->data) {
+            struct StackNode* temp = stack;
+            stack = stack->next;
+            temp->next = NULL;
+            temp = (struct StackNode*)malloc(sizeof(struct StackNode));
+            temp->data = current;
+            temp->next = stack;
+            stack = temp;
+            current = current->right;
+        } else {
+            printf("%d ", current->key);
+            current = NULL; // Move to the next iteration
+        }
+    } while (stack != NULL);
+}
+
+// Function to free the memory of the BST nodes
+void freeBST(struct Node* root) {
+    if (root == NULL) {
+        return;
+    }
+
+    freeBST(root->left);
+    freeBST(root->right);
+    free(root);
+}
+
+int main() {
+    struct Node* root = NULL;
+    int choice, key;
+
+    do {
+        printf("\n1. Insert\n");
+        printf("2. Mirror Image\n");
+        printf("3. Find\n");
+        printf("4. Post Order (Non-Recursive)\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter the key to insert: ");
+                scanf("%d", &key);
+                root = insert(root, key);
+                break;
+            case 2:
+                root = mirrorImage(root);
+                printf("Mirror image created.\n");
+                break;
+            case 3:
+                printf("Enter the key to find: ");
+                scanf("%d", &key);
+                if (search(root, key) != NULL) {
+                    printf("Key %d found in the BST.\n", key);
+                } else {
+                    printf("Key %d not found in the BST.\n", key);
+                }
+                break;
+            case 4:
+                printf("Non-Recursive Post Order traversal: ");
+                postOrderTraversal(root);
+                printf("\n");
+                break;
+            case 5:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please enter a valid option.\n");
+        }
+    } while (choice != 5);
+
+    // Free memory allocated for the BST nodes
+    freeBST(root);
+
+    return 0;
+}
